@@ -6,6 +6,9 @@ import moment from "moment";
 const Messages = (props) => {
   const { messages, otherUser, userId } = props;
 
+  // sort messages so oldest messages are displayed before new messages
+  messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : -1)
+
   return (
     <Box>
       {messages.map((message) => {
