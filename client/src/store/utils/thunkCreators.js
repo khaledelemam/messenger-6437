@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  readNewMessage
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -113,6 +114,21 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/users/${searchTerm}`);
     dispatch(setSearchedUsers(data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const saveReadMessages = async (body) => {
+  const { data } = await axios.put("/api/read_messages", body);
+  return data;
+};
+
+export const readMessages = (body) => async(dispatch) => {
+  try {
+    const data = await saveReadMessages(body);
+    dispatch(readNewMessage(data.id));
+
   } catch (error) {
     console.error(error);
   }

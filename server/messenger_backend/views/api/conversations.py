@@ -20,7 +20,6 @@ class Conversations(APIView):
             if user.is_anonymous:
                 return HttpResponse(status=401)
             user_id = user.id
-
             conversations = (
                 Conversation.objects.filter(Q(user1=user_id) | Q(user2=user_id))
                 .prefetch_related(
@@ -37,7 +36,7 @@ class Conversations(APIView):
                 convo_dict = {
                     "id": convo.id,
                     "messages": [
-                        message.to_dict(["id", "text", "senderId", "createdAt"])
+                        message.to_dict(["id", "text", "senderId", "createdAt","isRead"])
                         for message in convo.messages.all()
                     ],
                 }
@@ -57,6 +56,13 @@ class Conversations(APIView):
                     convo_dict["otherUser"]["online"] = True
                 else:
                     convo_dict["otherUser"]["online"] = False
+                
+                # count all the unread messages in each conversation
+                not_read = 0
+                for message in convo_dict["messages"]:
+                    if not message["isRead"] and message["senderId"] != user_id:
+                        not_read +=1
+                convo_dict["notRead"] = not_read
 
                 conversations_response.append(convo_dict)
             conversations_response.sort(

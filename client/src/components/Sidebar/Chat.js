@@ -1,8 +1,9 @@
 import React from "react";
-import { Box } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 import { BadgeAvatar, ChatContent } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
-import { setActiveChat } from "../../store/activeConversation";
+import { setActiveChat} from "../../store/activeConversation";
+import { readMessages } from "../../store/utils/thunkCreators";
 import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
@@ -15,21 +16,41 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     "&:hover": {
       cursor: "grab"
-    }
+    },
+  },
+  number : {
+    background: "#3A8DFF",
+    padding: 5,
+    borderRadius: 14,
+    fontSize: 12,
+    height : 28,
+    width: 28,
+    fontWeight: "bold",
+    textAlign:"center", 
+    color: "white", 
+    position: "relative",
+    right: 20
   }
 }));
 
 const Chat = (props) => {
   const classes = useStyles();
-  const { conversation } = props;
-  const { otherUser } = conversation;
+  const { conversation , user} = props;
+  const { otherUser, notRead , id} = conversation;
 
   const handleClick = async (conversation) => {
     await props.setActiveChat(conversation.otherUser.username);
+    const reqBody = {
+      recipientId: otherUser.id,
+      conversationId: id,
+      userId: user.id
+    };
+    await props.readMessages(reqBody);
   };
 
   return (
     <Box onClick={() => handleClick(conversation)} className={classes.root}>
+      
       <BadgeAvatar
         photoUrl={otherUser.photoUrl}
         username={otherUser.username}
@@ -37,16 +58,26 @@ const Chat = (props) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
+      {notRead > 0 && <Typography className ={classes.number}> {notRead} </Typography>}
     </Box>
   );
+};
+
+const mapStateToProps = (state) => {
+  return {
+    user: state.user
+  };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setActiveChat: (id) => {
       dispatch(setActiveChat(id));
+    },
+    readMessages: (body) => {
+      dispatch(readMessages(body));
     }
   };
 };
 
-export default connect(null, mapDispatchToProps)(Chat);
+export default connect(mapStateToProps, mapDispatchToProps)(Chat);
