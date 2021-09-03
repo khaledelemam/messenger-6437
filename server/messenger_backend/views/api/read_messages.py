@@ -25,8 +25,10 @@ class ReadMessages(APIView):
                 conv = Conversation.find_conversation(sender_id, recipient_id)
                 messages = Message.objects.filter(conversation = conv)
                 for message in messages:
-                    message.isRead = True
-                    message.save()
+                    # make sure that the user who opened the chat is the recipient
+                    if message.senderId != sender_id:
+                        message.isRead = True
+                        message.save()
 
 
             return JsonResponse({"id" : recipient_id})

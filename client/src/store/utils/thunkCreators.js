@@ -119,15 +119,20 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   }
 };
 
-const saveReadMessages = async (body) => {
+export const saveReadMessages = async (body) => {
   const { data } = await axios.put("/api/read_messages", body);
   return data;
+};
+
+export const sendReadMessage = (r, c) => {
+  socket.emit("read-message", {recipientID: r, conversationID: c});
 };
 
 export const readMessages = (body) => async(dispatch) => {
   try {
     const data = await saveReadMessages(body);
-    dispatch(readNewMessage(data.id));
+    dispatch(readNewMessage(data.id, body.conversationId));
+    sendReadMessage(data.id, body.conversationId)
 
   } catch (error) {
     console.error(error);

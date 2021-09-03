@@ -6,6 +6,7 @@ import {
   addMessageToStore,
   readAllMessages
 } from "./utils/reducerFunctions";
+import store from "./index";
 
 // ACTIONS
 
@@ -28,9 +29,11 @@ export const gotConversations = (conversations) => {
 };
 
 export const setNewMessage = (message, sender) => {
+  const activeConv = store.getState().activeConversation
+  const user = store.getState().user
   return {
     type: SET_MESSAGE,
-    payload: { message, sender: sender || null },
+    payload: { message, sender: sender || null, activeConv, user},
   };
 };
 
@@ -69,10 +72,10 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
-export const readNewMessage = (id) => {
+export const readNewMessage = (recipientID, conversationID) => {
   return {
     type: READ_MESSAGE,
-    id
+    payload : {recipientID, conversationID}
   };
 };
 
@@ -101,7 +104,7 @@ const reducer = (state = [], action) => {
         action.payload.newMessage
       );
     case READ_MESSAGE:
-        return readAllMessages(state, action.id);
+        return readAllMessages(state, action.payload);
     default:
       return state;
   }

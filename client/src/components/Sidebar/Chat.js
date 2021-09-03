@@ -42,7 +42,7 @@ const Chat = (props) => {
     await props.setActiveChat(conversation.otherUser.username);
     const reqBody = {
       recipientId: otherUser.id,
-      conversationId: id,
+      conversationId: id ? id : null,
       userId: user.id
     };
     await props.readMessages(reqBody);
@@ -56,6 +56,7 @@ const Chat = (props) => {
         username={otherUser.username}
         online={otherUser.online}
         sidebar={true}
+        dot = {true}
       />
       <ChatContent conversation={conversation} />
       {notRead > 0 && <Typography className ={classes.number}> {notRead} </Typography>}

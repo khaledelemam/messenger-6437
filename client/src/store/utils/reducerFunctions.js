@@ -1,13 +1,17 @@
-export const addMessageToStore = (state, payload) => {
-  const { message, sender } = payload;
+import { sendReadMessage , saveReadMessages}  from "./thunkCreators";
+
+export const addMessageToStore = (state, payload) =>{
+  const { message, sender, activeConv , user} = payload;
   // if sender isn't  null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
+      notRead: 0
     };
     newConvo.latestMessageText = message.text;
+    newConvo.notRead += 1;
     return [newConvo, ...state];
   }
 
@@ -17,6 +21,21 @@ export const addMessageToStore = (state, payload) => {
       const convoCopy = {...convo};
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
+      // instantly show unread message icon when both users are online and chat is not active
+      if (convo.otherUser.username !== activeConv){
+        convoCopy.notRead += 1;
+      }
+      // instanly read message when both users are online and chat is active
+      else if (message.senderId !== user.id){
+        const reqBody = {
+          recipientId: message.senderId,
+          conversationId: convo.id,
+          userId: user.id
+        };
+        saveReadMessages(reqBody);
+        sendReadMessage(message.senderId, convo.id)
+        readAllMessages(state, {recipientID: message.senderId, conversationID: convo.id})
+      }
       return convoCopy;
     } else {
       return convo;
@@ -83,11 +102,17 @@ export const addNewConvoToStore = (state, recipientId, message) => {
   });
 };
 
-export const readAllMessages = (state, id) => {
+export const readAllMessages = (state, payload) => {
+  const {recipientID, conversationID} = payload
   return state.map((convo) => {
-    if (convo.otherUser.id === id) {
+    if ((convo.id === conversationID)) {
       const convoCopy = {...convo};
-      convoCopy.notRead = 0;
+      convoCopy.notRead = 0; 
+      // as an optimization going forward: flag the new messages so only loop through them
+      convoCopy.messages.forEach((message) => {
+        if ((message.senderId === recipientID)) {
+          message.isRead = true;}
+      } );
       return convoCopy;
     } else {
       return convo;

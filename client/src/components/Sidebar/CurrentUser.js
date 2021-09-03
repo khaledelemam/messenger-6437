@@ -39,7 +39,7 @@ const CurrentUser = (props) => {
 
   return (
     <Box className={classes.root}>
-      <BadgeAvatar photoUrl={user.photoUrl} online={true} />
+      <BadgeAvatar photoUrl={user.photoUrl} online={true} dot = {true}/>
       <Box className={classes.subContainer}>
         <Typography className={classes.username}>{user.username}</Typography>
         <MoreHorizIcon classes={{ root: classes.ellipsis }} />
