@@ -29,8 +29,7 @@ export const addMessageToStore = (state, payload) =>{
       else if (message.senderId !== user.id){
         const reqBody = {
           recipientId: message.senderId,
-          conversationId: convo.id,
-          userId: user.id
+          conversationId: convo.id
         };
         saveReadMessages(reqBody);
         sendReadMessage(message.senderId, convo.id)
@@ -107,11 +106,15 @@ export const readAllMessages = (state, payload) => {
   return state.map((convo) => {
     if ((convo.id === conversationID)) {
       const convoCopy = {...convo};
-      convoCopy.notRead = 0; 
       // as an optimization going forward: flag the new messages so only loop through them
       convoCopy.messages.forEach((message) => {
         if ((message.senderId === recipientID)) {
-          message.isRead = true;}
+          message.isRead = true;
+          convoCopy.notRead = 0; 
+          }
+         if (message.isRead){
+          convoCopy.lastReadId = message.id;
+        }
       } );
       return convoCopy;
     } else {

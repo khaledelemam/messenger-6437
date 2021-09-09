@@ -58,13 +58,18 @@ class Conversations(APIView):
                     convo_dict["otherUser"]["online"] = False
                 
                 # count all the unread messages in each conversation
-                not_read = 0
-                for message in convo_dict["messages"]:
-                    if not message["isRead"] and message["senderId"] != user_id:
-                        not_read +=1
-                convo_dict["notRead"] = not_read
+                convo_dict["notRead"] = convo.messages.all().exclude(senderId = user_id).filter(isRead = False).count()
+                
+                # get all read messages order from latest to earliest message
+                ordered_messages = convo.messages.all().filter(senderId = user_id, isRead = True).order_by("-createdAt")
+                if ordered_messages:
+                    convo_dict["lastReadId"] = ordered_messages[0].id
+                else:
+                    #no message sent yet
+                    convo_dict["lastReadId"] = None
 
                 conversations_response.append(convo_dict)
+
             conversations_response.sort(
                 key=lambda convo: convo["messages"][-1]["createdAt"],
                 reverse=True,
