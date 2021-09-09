@@ -48,6 +48,7 @@ class Migration(migrations.Migration):
                 ('createdAt', models.DateTimeField(auto_now_add=True, db_index=True)),
                 ('updatedAt', models.DateTimeField(auto_now=True)),
                 ('conversation', models.ForeignKey(db_column='conversationId', on_delete=django.db.models.deletion.CASCADE, related_name='messages', related_query_name='message', to='messenger_backend.conversation')),
+                ('isRead', models.BooleanField(default=False))
             ],
             options={
                 'abstract': False,

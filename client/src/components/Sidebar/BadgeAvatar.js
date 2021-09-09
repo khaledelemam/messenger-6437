@@ -13,28 +13,39 @@ const useStyles = makeStyles(() => ({
     width: 13,
     borderRadius: "50%",
     border: "2px solid white",
-    backgroundColor: "#D0DAE9"
+    backgroundColor: "#D0DAE9",
   },
   online: {
     backgroundColor: "#1CED84"
   },
   sidebar: {
     marginLeft: 17
+
+  },
+  chat :{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end"
+  },
+  chatprofilePic: {
+    height: 30,
+    width: 30
+
   }
 }));
 
 const UserAvatar = (props) => {
   const classes = useStyles();
-  const { sidebar, username, photoUrl, online } = props;
+  const { sidebar, username, photoUrl, online , dot} = props;
 
   return (
-    <Box className={sidebar ? classes.sidebar : ""}>
+    <Box className={sidebar ? classes.sidebar : classes.chat}>
       <Badge
         classes={{ badge: `${classes.badge} ${online && classes.online}` }}
-        variant="dot"
+        variant = {dot ? "dot" : "standard"}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         overlap="circular">
-        <Avatar alt={username} src={photoUrl} className={classes.profilePic}></Avatar>
+        <Avatar alt={username} src={photoUrl} className={dot ? classes.profilePic :classes.chatprofilePic}></Avatar>
       </Badge>
     </Box>
   );
